@@ -1,0 +1,47 @@
+apiVersion: tekton.dev/v1
+kind: Task
+
+metadata:
+  name: argocd-check-state-task
+
+spec:
+
+  params:
+    - name: app-name
+      type: string
+      default: tekton-demo
+
+  steps:
+
+    - name: check-health
+      image: quay.io/argoproj/argocd:v2.12.3
+
+      env:
+        - name: ARGO_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: argocd-secret
+              key: username
+
+        - name: ARGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: argocd-secret
+              key: password
+
+      script: |
+        #!/bin/sh
+
+        echo "Login ad Argo CD"
+
+        argocd login \
+          argocd-server.argocd.svc.cluster.local \
+          --username $ARGO_USERNAME \
+          --password $ARGO_PASSWORD \
+          --insecure
+
+        echo "Controllo stato applicazione"
+
+        argocd app wait $(params.app-name) \
+          --sync \
+          --health

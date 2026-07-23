@@ -1,0 +1,116 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+
+metadata:
+  name: tekton-demo-pipeline
+
+spec:
+
+  params:
+
+    - name: repo-url
+      type: string
+
+    - name: image-version
+      type: string
+
+    - name: app-name
+      type: string
+      default: tekton-demo
+
+
+  workspaces:
+
+    - name: shared-workspace
+
+
+  tasks:
+
+
+    - name: clone
+      taskRef:
+        name: git-clone-task
+
+      params:
+
+        - name: repo-url
+          value: $(params.repo-url)
+
+      workspaces:
+
+        - name: shared-workspace
+          workspace: shared-workspace
+
+
+
+    - name: update-version
+
+      runAfter:
+
+        - clone
+
+      taskRef:
+        name: update-version-task
+
+      params:
+
+        - name: image-version
+          value: $(params.image-version)
+
+      workspaces:
+
+        - name: shared-workspace
+          workspace: shared-workspace
+
+
+
+    - name: git-push
+
+      runAfter:
+
+        - update-version
+
+      taskRef:
+        name: git-push-task
+
+      params:
+
+        - name: repo-url
+          value: filippo-colli/tekton-demo
+
+      workspaces:
+
+        - name: shared-workspace
+          workspace: shared-workspace
+
+
+
+    - name: argocd-sync
+
+      runAfter:
+
+        - git-push
+
+      taskRef:
+        name: argocd-sync-task
+
+      params:
+
+        - name: app-name
+          value: $(params.app-name)
+
+
+
+    - name: check-state
+
+      runAfter:
+
+        - argocd-sync
+
+      taskRef:
+        name: argocd-check-state-task
+
+      params:
+
+        - name: app-name
+          value: $(params.app-name)

@@ -1,0 +1,29 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+
+metadata:
+  name: tekton-demo-run
+
+spec:
+
+  pipelineRef:
+    name: tekton-demo-pipeline
+
+  params:
+
+    - name: repo-url
+      value: https://github.com/filippo-colli/tekton-demo.git
+
+    - name: image-version
+      value: "1.27.0"
+
+    - name: app-name
+      value: tekton-demo
+
+  workspaces:
+
+    - name: shared-workspace
+
+      persistentVolumeClaim:
+
+        claimName: tekton-workspace
