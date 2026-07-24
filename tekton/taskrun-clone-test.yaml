@@ -1,0 +1,24 @@
+apiVersion: tekton.dev/v1
+kind: TaskRun
+
+metadata:
+  name: clone-test
+
+spec:
+
+  taskRef:
+    name: git-clone-task
+
+  params:
+
+    - name: repo-url
+      value: https://github.com/filippo-colli/tekton-demo.git
+
+
+  workspaces:
+
+    - name: shared-workspace
+
+      persistentVolumeClaim:
+
+        claimName: tekton-workspace

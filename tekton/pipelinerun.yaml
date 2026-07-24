@@ -9,18 +9,33 @@ spec:
   pipelineRef:
     name: tekton-demo-pipeline
 
+
   params:
 
+
     - name: repo-url
+
       value: https://github.com/filippo-colli/tekton-demo.git
 
+
     - name: image-version
-      value: "1.27.3"
+
+      value: "v3"
+
+
+    - name: image-name
+
+      value: filicolli/nginx-demo
+
 
     - name: app-name
+
       value: tekton-demo
 
+
+
   workspaces:
+
 
     - name: shared-workspace
 

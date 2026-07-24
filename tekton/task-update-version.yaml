@@ -1,30 +1,38 @@
 apiVersion: tekton.dev/v1
 kind: Task
+
 metadata:
   name: update-version-task
 
 spec:
 
   params:
+
     - name: image-version
       type: string
-      description: Nuova versione dell'immagine nginx
+      description: Nuova versione immagine nginx
+
 
   workspaces:
+
     - name: shared-workspace
+
 
   steps:
 
     - name: update-image
+
       image: alpine:3.19
+
       script: |
         #!/bin/sh
+        set -ex
 
         cd $(workspaces.shared-workspace.path)
 
-        echo "Aggiorno versione immagine a $(params.image-version)"
+        echo "Aggiorno immagine a filicolli/nginx-demo:$(params.image-version)"
 
-        sed -i "s/nginx:.*/nginx:$(params.image-version)/" k8s/deployment.yaml
+        sed -i "s|image: .*|image: filicolli/nginx-demo:$(params.image-version)|" k8s/deployment.yaml
 
         echo "Nuovo contenuto:"
         cat k8s/deployment.yaml

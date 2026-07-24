@@ -4,57 +4,72 @@ kind: Pipeline
 metadata:
   name: tekton-demo-pipeline
 
-
 spec:
 
-
   params:
-
 
     - name: repo-url
       type: string
 
-
     - name: image-version
       type: string
-
 
     - name: app-name
       type: string
       default: tekton-demo
 
+    - name: image-name
+      type: string
+      default: filicolli/nginx-demo
 
 
   workspaces:
 
-
     - name: shared-workspace
-
 
 
   tasks:
 
 
-
     - name: clone
 
       taskRef:
-
         name: git-clone-task
+
+      params:
+
+        - name: repo-url
+          value: $(params.repo-url)
+
+      workspaces:
+
+        - name: shared-workspace
+          workspace: shared-workspace
+
+
+
+    - name: kaniko-build
+
+      runAfter:
+
+        - clone
+
+
+      taskRef:
+
+        name: kaniko-build-task
 
 
       params:
 
+        - name: IMAGE
 
-        - name: repo-url
-
-          value: $(params.repo-url)
+          value: $(params.image-name):$(params.image-version)
 
 
       workspaces:
 
-
-        - name: shared-workspace
+        - name: source
 
           workspace: shared-workspace
 
@@ -67,33 +82,26 @@ spec:
 
       runAfter:
 
-
-        - clone
+        - kaniko-build
 
 
       taskRef:
 
-
         name: update-version-task
 
 
-
       params:
-
 
         - name: image-version
 
           value: $(params.image-version)
 
 
-
       workspaces:
-
 
         - name: shared-workspace
 
           workspace: shared-workspace
-
 
 
 
@@ -104,25 +112,19 @@ spec:
 
       runAfter:
 
-
         - update-version
-
 
 
       taskRef:
 
-
         name: git-push-task
-
 
 
       workspaces:
 
-
         - name: shared-workspace
 
           workspace: shared-workspace
-
 
 
 
@@ -133,26 +135,19 @@ spec:
 
       runAfter:
 
-
         - git-push
-
 
 
       taskRef:
 
-
         name: argocd-sync-task
-
 
 
       params:
 
-
         - name: app-name
 
           value: $(params.app-name)
-
-
 
 
 
@@ -163,20 +158,15 @@ spec:
 
       runAfter:
 
-
         - argocd-sync
-
 
 
       taskRef:
 
-
         name: argocd-check-state-task
 
 
-
       params:
-
 
         - name: app-name
 
