@@ -19,6 +19,6 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: filicolli/nginx-demo:v3
+        image: filicolli/nginx-demo:v4
         ports:
         - containerPort: 80
