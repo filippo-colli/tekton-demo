@@ -20,7 +20,7 @@ spec:
 
     - name: image-version
 
-      value: "v3"
+      value: "v5"
 
 
     - name: image-name
